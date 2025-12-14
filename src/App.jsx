@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Layout from "./components/layout/Layout.jsx";
 import Login from "./pages/login/Login.jsx";
 import Signup from "./pages/login/Signup.jsx";
-import Loader from './components/common/Loader.jsx'
+import Loader from "./components/common/Loader.jsx";
 
 import { checkAuth } from "./store/auth.thunk.js";
 
@@ -13,31 +13,38 @@ import "./styles/style.min.css";
 
 const App = () => {
   const dispatch = useDispatch();
-  const { authUser, isCheckingAuth } = useSelector(state => state.authentication);
+  const { authUser, isCheckingAuth } = useSelector(
+    state => state.authentication
+  );
 
-  // check auth khi app load
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-  
-  if(isCheckingAuth) return <Loader />
+
+  if (isCheckingAuth) return <Loader />;
 
   return (
     <Routes>
       {/* Public routes */}
       <Route
         path="/login"
-        element={!authUser ? <Login /> : <Navigate to="/" />}
+        element={authUser ? <Navigate to="/" replace /> : <Login />}
       />
       <Route
         path="/signup"
-        element={!authUser ? <Signup /> : <Navigate to="/" />}
+        element={authUser ? <Navigate to="/" replace /> : <Signup />}
       />
 
       {/* Private routes */}
       <Route
-        path="/*"
-        element={authUser ? <Layout /> : <Navigate to="/login" />}
+        path="/"
+        element={authUser ? <Layout /> : <Navigate to="/login" replace />}
+      />
+
+      {/* fallback */}
+      <Route
+        path="*"
+        element={<Navigate to={authUser ? "/" : "/login"} replace />}
       />
     </Routes>
   );
