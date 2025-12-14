@@ -7,7 +7,7 @@ import Login from "./pages/login/Login.jsx";
 import Signup from "./pages/login/Signup.jsx";
 import Loader from "./components/common/Loader.jsx";
 
-import { checkAuth } from "./store/auth.thunk.js";
+import { checkAuth } from "./store/thunks/auth.thunk.js";
 
 import "./styles/style.min.css";
 

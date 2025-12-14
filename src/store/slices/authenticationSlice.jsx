@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { checkAuth, logIn, logout } from '../auth.thunk';
+import { checkAuth, logIn, logout } from '../thunks/auth.thunk';
 
 
 export const authenticationSlice = createSlice({

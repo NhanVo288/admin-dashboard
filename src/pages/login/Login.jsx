@@ -6,7 +6,7 @@ import Logo from "../../images/common/logo-dark.svg";
 import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
 import CheckBox from '../../components/common/CheckBox.jsx';
-import { logIn } from '../../store/auth.thunk.js';
+import { logIn } from '../../store/thunks/auth.thunk.js';
 
 const Login = () => {
   const dispatch = useDispatch();
