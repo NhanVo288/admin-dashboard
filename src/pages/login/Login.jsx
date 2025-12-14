@@ -36,14 +36,7 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (formData.email === "eventadmin@gmail.com" && formData.password === "eventadmin") {
-      dispatch(logIn())
-    } else {
-      setLoginError(true);
-      setTimeout(() => {
-        setLoginError(false);
-      }, 5000);
-    }
+    dispatch(logIn(formData));
   };
 
   return (

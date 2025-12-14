@@ -1,23 +1,9 @@
-import { Navigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { checkAuth } from "../../store/auth.thunk";
+import Main from "./Main.jsx";
+import Navbar from "./Navbar.jsx";
+import Footer from "./Footer.jsx";
+import Sidebar from "./Sidebar.jsx";
 
 const Layout = () => {
-  const dispatch = useDispatch();
-  const { userAuth, isCheckingAuth } = useSelector(
-    state => state.authentication
-  );
-
-  useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
-
-  if (isCheckingAuth) return null;
-
-  if (!userAuth) {
-    return <Navigate to="/login" replace />;
-  }
 
   return (
     <>

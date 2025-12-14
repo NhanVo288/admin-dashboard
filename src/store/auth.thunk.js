@@ -17,13 +17,9 @@ export const checkAuth = createAsyncThunk(
 export const logIn = createAsyncThunk(
     'auth/login',
     async (data) => {
-        try {
-            const res = await axiosInstance.post("/auth/login",data)
-            return res.data
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    const res = await axiosInstance.post("/auth/login", data);
+    return res.data;
+  }
 )
 export const logout = createAsyncThunk(
     'auth/logout',
