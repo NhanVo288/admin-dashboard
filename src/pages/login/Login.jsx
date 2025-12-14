@@ -6,7 +6,7 @@ import Logo from "../../images/common/logo-dark.svg";
 import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
 import CheckBox from '../../components/common/CheckBox.jsx';
-import {login} from '../../store/slices/authenticationSlice.jsx';
+import { logIn } from '../../store/auth.thunk.js';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -37,7 +37,7 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     if (formData.email === "eventadmin@gmail.com" && formData.password === "eventadmin") {
-      dispatch(login())
+      dispatch(logIn())
     } else {
       setLoginError(true);
       setTimeout(() => {

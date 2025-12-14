@@ -1,42 +1,32 @@
-import Main from "./Main.jsx";
-import Navbar from "./Navbar.jsx";
-import Footer from "./Footer.jsx";
-import Sidebar from "./Sidebar.jsx";
-import Login from "../../pages/login/Login.jsx";
-import Signup from "../../pages/login/Signup.jsx";
-import React, { useEffect } from "react";
-import { useSelector } from 'react-redux';
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { checkAuth } from "../../store/auth.thunk";
 
 const Layout = () => {
-  const isAuthenticated = useSelector(state => state.authentication.isAuthenticated);
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { userAuth, isCheckingAuth } = useSelector(
+    state => state.authentication
+  );
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     navigate("/login");
-  //   }else{
-  //     navigate("/catalog/product/manage");
-  //   }
-  // }, [isAuthenticated]);
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  if (isCheckingAuth) return null;
+
+  if (!userAuth) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <>
-      {!isAuthenticated ? (
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-      ) : (
-        <>
-          <Sidebar />
-          <div className="admin_body">
-            <Navbar />
-            <Main />
-            <Footer />
-          </div>
-        </>
-      )}
+      <Sidebar />
+      <div className="admin_body">
+        <Navbar />
+        <Main />
+        <Footer />
+      </div>
     </>
   );
 };

@@ -1,10 +1,20 @@
-import React from 'react'
-import Layout from './components/layout/Layout.jsx'
-import './styles/style.min.css'
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/layout/Layout.jsx";
+import Login from "./pages/login/Login.jsx";
+import Signup from "./pages/login/Signup.jsx";
+import "./styles/style.min.css";
+
 const App = () => {
   return (
-      <Layout/>
-  )
-}
+    <Routes>
+      {/* Public routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
 
-export default App
+      {/* Private routes */}
+      <Route path="/*" element={<Layout />} />
+    </Routes>
+  );
+};
+
+export default App;

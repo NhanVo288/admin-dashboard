@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import Logo from '../../images/common/logo.svg';
 import { Link, NavLink } from 'react-router-dom';
 import navigation from '../../api/navigation.jsx';
-import {logout} from '../../store/slices/authenticationSlice.jsx';
+import { logout } from '../../store/auth.thunk.js';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
