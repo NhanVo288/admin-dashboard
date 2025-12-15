@@ -2,13 +2,13 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Layout from "./components/layout/Layout.jsx";
-import Login from "./pages/login/Login.jsx";
-import Signup from "./pages/login/Signup.jsx";
-import Loader from "./components/common/Loader.jsx";
+import Layout from "./components/layout/Layout";
+import Login from "./pages/login/Login";
+import Signup from "./pages/login/Signup";
+import Loader from "./components/common/Loader";
 
-import { checkAuth } from "./store/thunks/auth.thunk.js";
-
+import routes from './components/layout/Routes';
+import { checkAuth } from "./store/thunks/auth.thunk";
 import "./styles/style.min.css";
 
 const App = () => {
@@ -23,29 +23,27 @@ const App = () => {
 
   if (isCheckingAuth) return <Loader />;
 
+  //Chưa login → chỉ cho vào login / signup
+  if (!authUser) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  // Đã login → toàn bộ app
   return (
     <Routes>
-      {/* Public routes */}
-      <Route
-        path="/login"
-        element={authUser ? <Navigate to="/" replace /> : <Login />}
-      />
-      <Route
-        path="/signup"
-        element={authUser ? <Navigate to="/" replace /> : <Signup />}
-      />
+      <Route element={<Layout />}>
+        {routes.map(({ path, element }) => (
+          <Route key={path} path={path} element={element} />
+        ))}
+      </Route>
 
-      {/* Private routes */}
-      <Route
-        path="/"
-        element={authUser ? <Layout /> : <Navigate to="/login" replace />}
-      />
-
-      {/* fallback */}
-      <Route
-        path="*"
-        element={<Navigate to={authUser ? "/" : "/login"} replace />}
-      />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

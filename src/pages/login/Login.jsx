@@ -7,10 +7,11 @@ import Input from '../../components/common/Input.jsx';
 import Button from '../../components/common/Button.jsx';
 import CheckBox from '../../components/common/CheckBox.jsx';
 import { logIn } from '../../store/thunks/auth.thunk.js';
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -34,16 +35,25 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    dispatch(logIn(formData));
-  };
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    await dispatch(logIn(formData)).unwrap();
+    navigate("/", { replace: true });
+  } catch (err) {
+    setLoginError(true);
+  }
+};
+
 
   return (
     <div className="login">
       <div className="login_sidebar">
         <figure className="login_image">
-          <img src="https://images.unsplash.com/photo-1694537745985-34eacdf76139?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80" alt="" />
+          <img
+            src="https://images.unsplash.com/photo-1694537745985-34eacdf76139?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80"
+            alt=""
+          />
         </figure>
       </div>
       <div className="login_form">
@@ -58,11 +68,9 @@ const Login = () => {
             <Input
               type="text"
               value={formData.email}
-              onChange={(value) =>
-                handleInputChange("email", value)
-              }
+              onChange={(value) => handleInputChange("email", value)}
               placeholder="Email or Phone Number"
-              icon={<Icons.TbMail/>}
+              icon={<Icons.TbMail />}
               label="Email or Number"
             />
           </div>
@@ -70,13 +78,11 @@ const Login = () => {
             <Input
               type={showPassword ? "text" : "password"}
               value={formData.password}
-              onChange={(value) =>
-                handleInputChange("password", value)
-              }
+              onChange={(value) => handleInputChange("password", value)}
               placeholder="Password"
               label="Password"
               onClick={handleShowPassword}
-              icon={<Icons.TbEye/>}
+              icon={<Icons.TbEye />}
             />
           </div>
           <div className="form_control">
@@ -87,12 +93,13 @@ const Login = () => {
               onChange={handleRememberChange}
             />
           </div>
-          {loginError && <small className="incorrect">Incorrect email or password and Remember me</small>}
+          {loginError && (
+            <small className="incorrect">
+              Incorrect email or password and Remember me
+            </small>
+          )}
           <div className="form_control">
-            <Button
-              label="Login"
-              type="submit"
-            />
+            <Button label="Login" type="submit" />
           </div>
         </form>
         <p className="signup_link">
@@ -100,13 +107,16 @@ const Login = () => {
         </p>
         <button className="google_signin">
           <figure>
-            <img src="https://img.icons8.com/color/1000/google-logo.png" alt="" />
+            <img
+              src="https://img.icons8.com/color/1000/google-logo.png"
+              alt=""
+            />
           </figure>
           <h2>Sign in with Google</h2>
         </button>
       </div>
     </div>
   );
-}
+};
 
 export default Login;
