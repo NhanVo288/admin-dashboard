@@ -21,6 +21,13 @@ export const logIn = createAsyncThunk(
     return res.data;
   }
 )
+export const signUp = createAsyncThunk(
+    'auth/signup',
+    async (data) => {
+        const res = await axiosInstance.post('/auth/signup',data)
+        return res.data
+    }
+)
 export const logout = createAsyncThunk(
     'auth/logout',
     async () => {

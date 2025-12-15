@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { checkAuth, logIn, logout } from '../thunks/auth.thunk';
+import { checkAuth, logIn, logout, signUp } from '../thunks/auth.thunk';
 
 
 export const authenticationSlice = createSlice({
@@ -33,6 +33,17 @@ export const authenticationSlice = createSlice({
       })
       .addCase(logIn.rejected, state => {
         state.isLogingIn = false;
+      })
+
+      .addCase(signUp.pending, state => {
+        state.isSigingUp = true
+      })
+      .addCase(signUp.fulfilled, (state,action) => {
+        state.authUser = action.payload
+        state.isSigingUp = false
+      })
+      .addCase(signUp.rejected, state => {
+        state.isSigingUp = false
       })
 
       .addCase(logout.fulfilled, state => {

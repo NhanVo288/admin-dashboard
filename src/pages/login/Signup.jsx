@@ -5,18 +5,20 @@ import Button from '../../components/common/Button.jsx'
 import CheckBox from '../../components/common/CheckBox.jsx';
 import Logo from "../../images/common/logo-dark.svg";
 import { Routes, Route, useNavigate, Link } from 'react-router-dom';
+import { signUp } from './../../store/thunks/auth.thunk';
+import { useDispatch } from 'react-redux';
 
-const Signup = ({isLogin}) => {
+const Signup = () => {
 	// check user login or logout
 	const [login, setLogin] = useState(false);
 	const [loginError, setLoginError] = useState(false);
-	const navigate = useNavigate();
+	const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+	  fullName: "",
 	  email: "",
-	  username: "",
 	  password: "",
-	  Cpassword: "",
 	});
 
   // Function to handle input field changes
@@ -43,22 +45,26 @@ const Signup = ({isLogin}) => {
   }
 
   // login
-  const handleLogin = (e) => {
-  	e.preventDefault();
-		setLogin(true);
-  };
+  const handleSignUp = async (e) => {
+  e.preventDefault();
+  try {
+    await dispatch(signUp(formData)).unwrap();
+    navigate("/", { replace: true });
+  } catch (err) {
+    setLoginError(true);
+  }
+};
 
   const hadnleGoogleLogin = () =>{
     setLogin(true);
   }
 
   useEffect(() => {
-    isLogin(login);
 
     if (login) {
       navigate("/");
     }
-  }, [login, isLogin, navigate]);
+  }, [login, navigate]);
 	return (
 		<div className="login">
 			<div className="login_sidebar">
@@ -74,18 +80,18 @@ const Signup = ({isLogin}) => {
 	        </div>
 					<h2 className="page_heading">Sign up</h2>
 				</div>		
-				<form className="form" onSubmit={handleLogin}>
+				<form className="form" onSubmit={handleSignUp}>
 					<div className="form_control">
 						<Input
 	            type="text"
-	            value={formData.username}
+	            value={formData.fullName}
 	            onChange={(value) =>
-	              handleInputChange("username", value)
+	              handleInputChange("fullName", value)
 	            }
-	            placeholder="Username"
+	            placeholder="fullName"
 	            icon={<Icons.TbUser/>}
-	            label="Username"
-	            className={formData.username === "" ? "valid" : ""}
+	            label="fullName"
+	            className={formData.fullName === "" ? "valid" : ""}
 	          />
 					</div>
 					<div className="form_control">
@@ -115,20 +121,7 @@ const Signup = ({isLogin}) => {
 	            className={formData.password === "" ? "valid" : ""}
 	          />
 					</div>
-					<div className="form_control">
-						<Input
-	            type={show ? "text" : "password"}
-	            value={formData.Cpassword}
-	            onChange={(value) =>
-	              handleInputChange("Cpassword", value)
-	            }
-	            placeholder="Confirm Password"
-	            icon={<Icons.TbEye/>}
-	            onClick={handleShowPassword}
-	            label="Confirm Password"
-	            className={formData.Cpassword === "" ? "valid" : ""}
-	          />
-					</div>
+					
 					<div className="form_control">
 						<CheckBox
 			        id="exampleCheckbox"
