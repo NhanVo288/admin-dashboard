@@ -25,8 +25,7 @@ const App = () => {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  // đang check auth → loader riêng
-  if (isCheckingAuth) return <Loader />;
+  if (isCheckingAuth) return null;
 
   //chưa login
   if (!authUser) {
@@ -41,19 +40,15 @@ const App = () => {
     );
   }
 
-  
   return (
-    <Suspense fallback={<Loader />}>
-      <Routes>
-        <Route element={<Layout />}>
-          {routes.map(({ path, element }) => (
-            <Route key={path} path={path} element={element} />
-          ))}
-        </Route>
-
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      <Route element={<Layout />}>
+        {routes.map(({ path, element }) => (
+          <Route key={path} path={path} element={element} />
+        ))}
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 };
 
