@@ -4,11 +4,14 @@ import * as Icons from "react-icons/tb";
 import Input from '../common/Input.jsx';
 import Profile from '../common/Profile.jsx';
 import ProfileImg from '../../images/users/user_3.webp';
-
+import { useSelector } from "react-redux";
+import { selectAuthUser } from "../../store/auth/auth.selector.js";
 const Navbar = () => {
+  const authUser = useSelector(selectAuthUser)
   const [user] = useState({
-    username: "Your Username",
-    email: "your@email.com", // Replace with your user data
+    username: authUser.fullName,
+    email: authUser.email, // Replace with your user data
+    picture: authUser.profilePic
   });
 
   return (
@@ -38,7 +41,7 @@ const Navbar = () => {
                 name={user.username}
                 slogan={user.email}
                 className="admin_profile"
-                src={ProfileImg}
+                src={user.picture || ProfileImg}
               />
             </div>
           </div>

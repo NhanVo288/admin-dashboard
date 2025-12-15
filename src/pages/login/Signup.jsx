@@ -5,7 +5,7 @@ import Button from '../../components/common/Button.jsx'
 import CheckBox from '../../components/common/CheckBox.jsx';
 import Logo from "../../images/common/logo-dark.svg";
 import { Routes, Route, useNavigate, Link } from 'react-router-dom';
-import { signUp } from './../../store/thunks/auth.thunk';
+import { signUp } from '../../store/auth/auth.thunk.js';
 import { useDispatch } from 'react-redux';
 
 const Signup = () => {

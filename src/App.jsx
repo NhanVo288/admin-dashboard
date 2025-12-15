@@ -6,16 +6,15 @@ import Layout from "./components/layout/Layout";
 import Login from "./pages/login/Login";
 import Signup from "./pages/login/Signup";
 import Loader from "./components/common/Loader";
-
+import { selectAuthUser,selectIsCheckingAuth } from "./store/auth/auth.selector";
 import routes from './components/layout/Routes';
-import { checkAuth } from "./store/thunks/auth.thunk";
+import { checkAuth } from "./store/auth/auth.thunk";
 import "./styles/style.min.css";
 
 const App = () => {
   const dispatch = useDispatch();
-  const { authUser, isCheckingAuth } = useSelector(
-    state => state.authentication
-  );
+  const authUser = useSelector(selectAuthUser)
+  const isCheckingAuth = useSelector(selectIsCheckingAuth)
 
   useEffect(() => {
     dispatch(checkAuth());
