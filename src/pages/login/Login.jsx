@@ -62,6 +62,7 @@ const Login = () => {
             <img src={Logo} alt="logo" />
           </div>
           <h2 className="page_heading">Login</h2>
+          <p>email: admin@gmail.com, pass: 123123</p>
         </div>
         <form className="form" onSubmit={handleLogin}>
           <div className="form_control">
