@@ -283,6 +283,7 @@ figure img {
   display: flex;
   align-items: center;
   grid-gap: 10px;
+  margin-left: auto;
 }
 
 .navbar_icon {

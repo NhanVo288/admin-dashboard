@@ -19,13 +19,13 @@ const Navbar = () => {
       <div className="navbar_wrapper">
         <div className="container">
           <div className="navbar_main">
-            <Input
+            {/* <Input
               icon={<Icons.TbSearch />}
               placeholder="Search..."
               className="navbar_search"
-            />
+            /> */}
             <div className="navbar_icons">
-              <Link className="navbar_icon">
+              {/* <Link className="navbar_icon">
                 <Icons.TbLayoutGrid />
               </Link>
               <Link className="navbar_icon">
@@ -36,7 +36,7 @@ const Navbar = () => {
               </Link>
               <Link className="navbar_icon">
                 <Icons.TbSunHigh />
-              </Link>
+              </Link> */}
               <Profile
                 name={user.username}
                 slogan={user.email}
