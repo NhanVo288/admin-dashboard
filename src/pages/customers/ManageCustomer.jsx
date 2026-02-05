@@ -10,12 +10,20 @@ import Dropdown from "../../components/common/Dropdown.jsx";
 import Pagination from "../../components/common/Pagination.jsx";
 import TableAction from "../../components/common/TableAction.jsx";
 import SelectOption from "../../components/common/SelectOption.jsx";
+import { useGetUserQuery } from "../../store/user/userApi.js";
+import Loader from "../../components/common/Loader.jsx";
+import { setPage, setSize } from "../../store/user/user.slice.js";
+import { useDispatch, useSelector } from "react-redux";
 
 const ManageCustomer = () => {
+  const { page, size } = useSelector((state) => state.user);
+  const { data, isLoading } = useGetUserQuery({ page, size });
+  const dispatch = useDispatch();
+  const customers = data?.data?.content ?? [];
+  const totalPages = data?.data?.totalPages ?? 0;
   const [bulkCheck, setBulkCheck] = useState(false);
   const [specificChecks, setSpecificChecks] = useState({});
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedValue, setSelectedValue] = useState(5);
   const [tableRow, setTableRow] = useState([
     { value: 2, label: "2" },
@@ -36,15 +44,15 @@ const ManageCustomer = () => {
   };
 
   const onPageChange = (newPage) => {
-    setCurrentPage(newPage);
+    dispatch(setPage(newPage-1))
   };
 
   const handleBulkCheckbox = (isCheck) => {
     setBulkCheck(isCheck);
     if (isCheck) {
       const updateChecks = {};
-      customer.forEach((customer) => {
-        updateChecks[customer.id] = true;
+      customers.forEach((c) => {
+        updateChecks[c.id] = true;
       });
       setSpecificChecks(updateChecks);
     } else {
@@ -60,9 +68,8 @@ const ManageCustomer = () => {
   };
 
   const showTableRow = (selectedOption) => {
-    setSelectedValue(selectedOption.label);
+    dispatch(setSize((selectedOption.label)));
   };
-
 
   const actionItems = ["Delete", "edit"];
 
@@ -74,7 +81,7 @@ const ManageCustomer = () => {
       navigate(`/customers/manage/${itemID}`);
     }
   };
-
+  if (isLoading) return <Loader />;
 
   return (
     <section className="customer">
@@ -113,7 +120,7 @@ const ManageCustomer = () => {
                         />
                       </th>
                       <th className="td_id">id</th>
-                      <th className="td_image">image</th>
+                      {/* <th className="td_image">image</th> */}
                       <th colSpan="4">name</th>
                       <th>email</th>
                       <th>orders</th>
@@ -123,76 +130,60 @@ const ManageCustomer = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {customer.map((customer, key) => {
-                      return (
-                        <tr key={key}>
-                          <td className="td_checkbox">
-                            <CheckBox
-                              onChange={(isCheck) =>
-                                handleCheckCustomer(isCheck, customer.id)
-                              }
-                              isChecked={specificChecks[customer.id] || false}
-                            />
-                          </td>
-                          <td className="td_id">{customer.id}</td>
-                          <td className="td_image">
-                            <img
-                              src={`${customer.image}${customer.name}`}
-                              alt={customer.name}
-                            />
-                          </td>
-                          <td colSpan="4">
-                            <Link to={customer.id.toString()}>{customer.name}</Link>
-                          </td>
-                          <td>{customer.contact.email}</td>
-                          <td>{customer.purchase_history.length}</td>
-                          <td className="td_status">
-                            {customer.status.toLowerCase() === "active" ||
-                             customer.status.toLowerCase() === "completed" ||
-                             customer.status.toLowerCase() === "new" ||
-                             customer.status.toLowerCase() === "coming soon" ? (
-                               <Badge
-                                 label={customer.status}
-                                 className="light-success"
-                               />
-                             ) : customer.status.toLowerCase() === "inactive" ||
-                               customer.status.toLowerCase() === "out of stock" ||
-                               customer.status.toLowerCase() === "locked" ||
-                               customer.status.toLowerCase() === "discontinued" ? (
-                               <Badge
-                                 label={customer.status}
-                                 className="light-danger"
-                               />
-                             ) : customer.status.toLowerCase() === "on sale" ||
-                                 customer.status.toLowerCase() === "featured" ||
-                                 customer.status.toLowerCase() === "pending" ? (
-                               <Badge
-                                 label={customer.status}
-                                 className="light-warning"
-                               />
-                             ) : customer.status.toLowerCase() === "archive" ||
-                                 customer.status.toLowerCase() === "pause" ? (
-                               <Badge
-                                 label={customer.status}
-                                 className="light-secondary"
-                               />
-                             ) : (
-                               ""
-                             )}
-                          </td>
-                          <td className="td_date">{customer.createdAt}</td>
-                          
-                          <td className="td_action">
-                            <TableAction
-                              actionItems={actionItems}
-                              onActionItemClick={(item) =>
-                                handleActionItemClick(item, customer.id)
-                              }
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {customers.map((customer) => (
+                      <tr key={customer.id}>
+                        <td className="td_checkbox">
+                          <CheckBox
+                            onChange={(isCheck) =>
+                              handleCheckCustomer(isCheck, customer.id)
+                            }
+                            isChecked={specificChecks[customer.id] || false}
+                          />
+                        </td>
+
+                        <td className="td_id">{customer.id}</td>
+
+                        {/* <td className="td_image">
+                          <Icons.TbUser size={18} />
+                        </td> */}
+
+                        <td colSpan="4">
+                          <Link to={customer.id.toString()}>
+                            {customer.fullName || customer.email}
+                          </Link>
+                        </td>
+
+                        <td>{customer.email}</td>
+
+                        <td>—</td>
+
+                        <td className="td_status">
+                          <Badge
+                            label={customer.actived ? "ACTIVE" : "LOCKED"}
+                            className={
+                              customer.actived
+                                ? "light-success"
+                                : "light-danger"
+                            }
+                          />
+                        </td>
+
+                        <td className="td_date">
+                          {customer.createdAt
+                            ? new Date(customer.createdAt).toLocaleDateString()
+                            : "--"}
+                        </td>
+
+                        <td className="td_action">
+                          <TableAction
+                            actionItems={actionItems}
+                            onActionItemClick={(item) =>
+                              handleActionItemClick(item, customer.id)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -201,13 +192,13 @@ const ManageCustomer = () => {
               <Dropdown
                 className="top show_rows sm"
                 placeholder="please select"
-                selectedValue={selectedValue}
+                selectedValue={size}
                 onClick={showTableRow}
                 options={tableRow}
               />
               <Pagination
-                currentPage={currentPage}
-                totalPages={5}
+                currentPage={page + 1}
+                totalPages={totalPages}
                 onPageChange={onPageChange}
               />
             </div>

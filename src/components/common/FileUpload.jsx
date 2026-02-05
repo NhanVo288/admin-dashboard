@@ -1,45 +1,75 @@
-import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useCallback, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
 import * as Icons from "react-icons/tb";
 import Button from "./Button.jsx";
 
-const DropZone = () => {
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+  });
 
-  const onDrop = useCallback(acceptedFiles => {
-    const filesWithPreview = acceptedFiles.map(file => Object.assign(file, {
-      preview: URL.createObjectURL(file),
-      id: Date.now() + file.name // Assign a unique ID to each file
-    }));
-    setUploadedFiles(prevFiles => [...prevFiles, ...filesWithPreview]);
-  }, []);
+const DropZone = ({ value, onChange }) => {
+  const onDrop = useCallback(async (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
 
-  const onDelete = id => {
-    setUploadedFiles(prevFiles => prevFiles.filter(file => file.id !== id));
+    const preview = URL.createObjectURL(file);
+    const base64 = await fileToBase64(file);
+
+    onChange({
+      id: Date.now(),
+      name: file.name,
+      preview,   
+      base64,    
+    });
+  }, [onChange]);
+
+  const onDelete = () => {
+    if (value?.preview) {
+      URL.revokeObjectURL(value.preview); // tránh memory leak
+    }
+    onChange(null);
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+  useEffect(() => {
+    return () => {
+      if (value?.preview) {
+        URL.revokeObjectURL(value.preview);
+      }
+    };
+  }, [value]);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: { "image/*": [] },
+  });
+
   return (
     <div className="drop-zone-container">
       <div {...getRootProps()} className="drop-zone">
         <input {...getInputProps()} />
-        <p>Drag & drop files here, or click to select files</p>
+        <p>Drag & drop image here or click</p>
       </div>
-      {
-        uploadedFiles.length > 0 ?
+
+      {value && (
         <div className="uploaded-images">
-          {uploadedFiles.map((file, key) => (
-            <div key={key} className="uploaded-image-container">
-              <figure className="uploaded-image">
-                <img src={file.preview} alt={file.name} />
-                <Button onClick={() => onDelete(file.id)} icon={<Icons.TbTrash/>} className="sm" />
-              </figure>
-              <span className="line_clamp">{file.name}</span>
-            </div>
-          ))}
+          <div className="uploaded-image-container">
+            <figure className="uploaded-image">
+              <img src={value.preview} alt={value.name} />
+              <Button
+                onClick={onDelete}
+                icon={<Icons.TbTrash />}
+                className="sm"
+              />
+            </figure>
+            <span className="line_clamp">{value.name}</span>
+          </div>
         </div>
-        : ""
-      }
+      )}
     </div>
   );
 };

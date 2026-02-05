@@ -6,6 +6,7 @@ export const authenticationSlice = createSlice({
   name: 'authentication',
   initialState:{
     authUser: null,
+    userData: null,
     isCheckingAuth: true,
     isSigingUp: false,
     isLogingIn: false,
@@ -17,7 +18,7 @@ export const authenticationSlice = createSlice({
         state.isCheckingAuth = true
       })
       .addCase(checkAuth.fulfilled, (state,action) => {
-        state.authUser = action.payload
+        state.userData = action.payload.data
         state.isCheckingAuth = false
       })
       .addCase(checkAuth.rejected, state => {
@@ -28,7 +29,11 @@ export const authenticationSlice = createSlice({
         state.isLogingIn = true;
       })
       .addCase(logIn.fulfilled, (state, action) => {
-        state.authUser = action.payload;
+        const { accessToken, refreshToken, userId } = action.payload.data;
+        state.userData = userId
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("userId", userId);
         state.isLogingIn = false;
       })
       .addCase(logIn.rejected, state => {
@@ -47,7 +52,10 @@ export const authenticationSlice = createSlice({
       })
 
       .addCase(logout.fulfilled, state => {
-        state.authUser = null
+        state.userData = null
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userId");
       })
   }
 });

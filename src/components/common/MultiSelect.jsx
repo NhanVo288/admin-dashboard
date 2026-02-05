@@ -6,29 +6,66 @@ const MultiSelect = ({
   label,
   options,
   placeholder,
-  isSelected,
+  isSelected, // Đây là object {label, value} từ parent truyền vào
   isMulti = false,
   onChange
 }) => {
   const [value, setValue] = useState("");
-  const [selected, setSelected] = useState(isSelected ? [isSelected] : []);
+  
+  //  Khi khởi tạo, chỉ lấy label để hiển thị UI
+  const [selected, setSelected] = useState(
+    isSelected ? (Array.isArray(isSelected) ? isSelected.map(i => i.label) : [isSelected.label]) : []
+  );
+
   const [bool, setBool] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState(options);
   const inputRef = useRef(null);
 
-  const selectedHandle = (value) => {
-    if (!isMulti) {
-      setSelected([value]);
-      setBool(false);
-      setValue("");
-      setFilteredOptions(options);
+  //  Đồng bộ lại khi props isSelected thay đổi từ bên ngoài (nếu cần)
+  useEffect(() => {
+    if (isSelected) {
+       const initialSelected = Array.isArray(isSelected) 
+          ? isSelected.map(i => i.label) 
+          : [isSelected.label];
+       setSelected(initialSelected);
     } else {
-      setSelected((prevSelected) => [...prevSelected, value]);
+       setSelected([]);
+    }
+  }, [isSelected]);
+
+
+  //  Nhận vào cả object option thay vì chỉ value text
+  const selectedHandle = (option) => {
+    const newLabel = option.label;
+    const newValue = option.value;
+
+    if (!isMulti) {
+      // Single Select
+      setSelected([newLabel]); // UI hiện Label
       setBool(false);
       setValue("");
       setFilteredOptions(options);
+      
+      //  Trả về newValue (ID) thay vì mảng [label]
+      onChange(newValue); 
+    } else {
+      // Multi Select
+      // Nếu đã chọn rồi thì không thêm nữa (tránh trùng)
+      if (selected.includes(newLabel)) return;
+      
+      const newSelectedLabels = [...selected, newLabel];
+      setSelected(newSelectedLabels);
+      setBool(false);
+      setValue("");
+      setFilteredOptions(options);
+
+      // Map từ Label -> Value để trả về danh sách ID cho Parent
+      const newSelectedValues = newSelectedLabels.map(lbl => {
+        const foundOption = options.find(o => o.label === lbl);
+        return foundOption ? foundOption.value : null;
+      });
+      onChange(newSelectedValues);
     }
-    onChange(isMulti ? [...selected, value] : [value])
   };
 
   const inputClickHandle = () => {
@@ -51,14 +88,24 @@ const MultiSelect = ({
     }
   };
 
-  const removeTagHandle = (tag) => {
-    setSelected(selected.filter((selectedValue) => selectedValue !== tag));
+  //  Xử lý khi xóa tag (cho Multi select)
+  const removeTagHandle = (tagLabel) => {
+    const newSelectedLabels = selected.filter((selectedValue) => selectedValue !== tagLabel);
+    setSelected(newSelectedLabels);
     setFilteredOptions(options);
+
+    // Tìm lại ID tương ứng cho các label còn lại
+    const newSelectedValues = newSelectedLabels.map(lbl => {
+        const foundOption = options.find(o => o.label === lbl);
+        return foundOption ? foundOption.value : null;
+    });
+    onChange(newSelectedValues);
   };
 
   const clearAllHandle = () => {
     setSelected([]);
     setFilteredOptions(options);
+    onChange(isMulti ? [] : null); // Reset về null hoặc mảng rỗng
   };
 
   useEffect(() => {
@@ -112,7 +159,10 @@ const MultiSelect = ({
             onClick={inputClickHandle}
           />
         ) : (
-          <span className="default_select">{selected}</span>
+          // Hiển thị Label khi đã chọn (Single)
+          <span className="default_select" onClick={inputClickHandle}>
+            {selected[0]} 
+          </span>
         )}
         <Icons.TbChevronDown className="chevron_down" />
         {selected.length !== 0 ? (
@@ -128,7 +178,8 @@ const MultiSelect = ({
               className={`select_dropdown_item ${
                 isOptionSelected ? "disabled" : ""
               }`}
-              onClick={() => !isOptionSelected && selectedHandle(option.label)}
+              // Truyền cả object option vào selectedHandle
+              onClick={() => !isOptionSelected && selectedHandle(option)}
             >
               <button>{option.label}</button>
             </li>

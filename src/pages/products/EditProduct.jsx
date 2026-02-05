@@ -24,9 +24,11 @@ import FileUpload from "../../components/common/FileUpload.jsx";
 import TextEditor from "../../components/common/TextEditor.jsx";
 import MultiSelect from "../../components/common/MultiSelect.jsx";
 import ManageProduct from "../../pages/products/ManageProduct.jsx";
+import { useDispatch, useSelector } from "react-redux";
 
 const EditProduct = ({ productData }) => {
   const {productId} = useParams();
+  const dispatch = useDispatch()
   const getProduct = Products.find(product=> product.id.toString() === productId.toString());
   if (!getProduct) {
     return <Routes>

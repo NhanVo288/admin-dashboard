@@ -19,31 +19,59 @@ import Thumbnail from "../../components/common/Thumbnail.jsx";
 import Accordion from "../../components/common/Accordion.jsx";
 import TableAction from "../../components/common/TableAction.jsx";
 import MultiSelect from "../../components/common/MultiSelect.jsx";
+import { useGetUserByIdQuery } from "../../store/user/userApi.js";
+import Loader from "../../components/common/Loader.jsx";
 
 const EditCustomer = () => {
   const { customerId } = useParams();
-
+  const { data , isLoading} = useGetUserByIdQuery(customerId)
   const customer = Customers.find(customer => customer.id.toString() === customerId.toString());
 
   const [fields, setFields] = useState({
-    name: customer.name,
-    email: customer.contact.email,
-    phone: customer.contact.phone,
-    date: customer.dob,
-    password: "",
-    passwordConfirm: "",
-    isVendor: customer.isVendor,
-    status: customer.status,
-    image: customer.image,
-    addressName:"",
-    addressPhone:"",
-    addressZip:"",
-    addressEmail:"",
-    addressStreet:"",
-    addressCountry:"",
-    addressState:"",
-    addressCity:"",
-  });
+  name: "",
+  email: "",
+  phone: "",
+  date: "",
+  password: "",
+  passwordConfirm: "",
+  isVendor: false,
+  status: "",
+  image: "",
+  addressName:"",
+  addressPhone:"",
+  addressZip:"",
+  addressEmail:"",
+  addressStreet:"",
+  addressCountry:"",
+  addressState:"",
+  addressCity:"",
+});
+useEffect(() => {
+  if (data?.data) {
+    const user = data.data;
+
+    setFields({
+      name: user.fullName ?? "",
+      email: user.email ?? "",
+      phone: user.phone ?? "",
+      date: user.createdAt ?? "",
+      password: "",
+      passwordConfirm: "",
+      isVendor: user.role === "ROLE_VENDOR",
+      status: user.actived ? "active" : "locked",
+      image: "",
+      addressName:"",
+      addressPhone:"",
+      addressZip:"",
+      addressEmail:"",
+      addressStreet:"",
+      addressCountry:"",
+      addressState:"",
+      addressCity:"",
+    });
+  }
+}, [data]);
+
 
   const handleInputChange = (key, value) => {
     setFields({
@@ -104,6 +132,7 @@ const EditCustomer = () => {
       navigate(`/catalog/product/manage/${itemID}`);
     }
   };
+  if(isLoading) return <Loader />
   return (
     <section>
       <div className="container">
@@ -117,7 +146,7 @@ const EditCustomer = () => {
                   placeholder="Enter the customer name"
                   label="Name"
                   icon={<Icons.TbUser />}
-                  value={fields.name}
+                  value={fields.fullname}
                   onChange={(value) => handleInputChange("name", value)}
                 />
               </div>
@@ -179,7 +208,7 @@ const EditCustomer = () => {
                 />
               </div>
             </div>
-            <div className="content_item">
+            {/* <div className="content_item">
               <h2 className="sub_heading">
                 <span>Addresses</span>
                 <Button
@@ -316,8 +345,8 @@ const EditCustomer = () => {
                   </div>
                 ))
               }
-            </div>
-            <div className="content_item">
+            </div> */}
+            {/* <div className="content_item">
               <h2 className="sub_heading">Payments</h2>
               <div className="column">
                 <div className="table_responsive">
@@ -395,8 +424,8 @@ const EditCustomer = () => {
                   </table>
                 </div>
               </div>
-            </div>
-            <div className="content_item">
+            </div> */}
+            {/* <div className="content_item">
               <h2 className="sub_heading">reviews</h2>
               <div className="column">
                 <table className="bordered">
@@ -464,7 +493,7 @@ const EditCustomer = () => {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="sidebar">
             <div className="sidebar_item">
