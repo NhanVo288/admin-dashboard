@@ -9,9 +9,9 @@ import { selectAuthUser } from "../../store/auth/auth.selector.js";
 const Navbar = () => {
   const authUser = useSelector(selectAuthUser)
   const [user] = useState({
-    username: authUser.fullName,
-    email: authUser.email, // Replace with your user data
-    picture: authUser.profilePic
+    username: authUser?.fullName,
+    email: authUser?.email, // Replace with your user data
+    picture: authUser?.profilePic
   });
 
   return (

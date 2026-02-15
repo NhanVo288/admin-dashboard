@@ -29,17 +29,17 @@ const App = () => {
   if (isCheckingAuth) return null;
 
   //chưa login
-  if (!authUser && !isAdmin) {
-    return (
-      <Suspense fallback={<Loader />}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Suspense>
-    );
-  }
+  // if (!authUser && !isAdmin) {
+  //   return (
+  //     <Suspense fallback={<Loader />}>
+  //       <Routes>
+  //         <Route path="/login" element={<Login />} />
+  //         <Route path="/signup" element={<Signup />} />
+  //         <Route path="*" element={<Navigate to="/login" replace />} />
+  //       </Routes>
+  //     </Suspense>
+  //   );
+  // }
 
   return (
     <>
