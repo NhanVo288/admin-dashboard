@@ -3,6 +3,8 @@ import authenticationSlice from "./auth/auth.slice.jsx";
 import productSlice from "./products/product.slice";
 import userSlice from "./user/user.slice.js";
 import paymentSlice from './Payment/paymentSlice.js'
+import  orderSlice  from "./order/order.slice.js";
+import inventorySlice from './inventory/inventorySlice.js'
 import { userApi } from "./user/userApi.js";
 import { inventoryApi } from "./inventory/inventory.api.js";
 import { orderApi } from "./order/order.api.js";
@@ -16,6 +18,8 @@ export const store = configureStore({
     product: productSlice,
     user: userSlice,
     payment: paymentSlice,
+    order: orderSlice,
+    inventory: inventorySlice,
     [userApi.reducerPath]: userApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
     [inventoryApi.reducerPath]: inventoryApi.reducer,

@@ -4,20 +4,17 @@ export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://26.100.40.164:8181/api",
-    prepareHeaders: (headers, { getState }) => {
-      const state = getState();
-      const token = state.auth.accessToken;
-      const userId = state.auth.userId;
+    prepareHeaders: (header) => {
+      const token = localStorage.getItem("tokenAccess");
+      const userId = localStorage.getItem("userId");
 
       if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+        header.set("Authorization", `Bearer ${token}`);
       }
-
       if (userId) {
-        headers.set("X-User-Id", userId);
+        header.set("X-User-Id", userId);
       }
-
-      return headers;
+      return header;
     },
   }),
   tagTypes: ["Product"],
@@ -89,7 +86,7 @@ export const productApi = createApi({
           toast.success("Xóa sản phẩm thành công");
         } catch {}
       },
-      invalidatesTags: [{type: 'Product', id: 'LIST'}]
+      invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
 
     searchProducts: builder.query({

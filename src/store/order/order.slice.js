@@ -6,7 +6,7 @@ const initialState = {
   size: 10
 }
 
-const orderSlice = createSlice({
+ const orderSlice = createSlice({
   name: "order",
   initialState,
   reducers: {
@@ -15,9 +15,12 @@ const orderSlice = createSlice({
     },
     setPage(state, action) {
       state.page = action.payload
+    },
+    setSize(state,action) {
+      state.size = action.payload
     }
   }
 })
 
-export const { setSelectedOrder, setPage } = orderSlice.actions
+export const { setSelectedOrder, setPage, setSize } = orderSlice.actions
 export default orderSlice.reducer

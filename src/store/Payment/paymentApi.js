@@ -15,6 +15,7 @@ export const paymentApi = createApi({
       if (userId) {
         header.set("X-User-Id", userId);
       }
+      return header;
     },
   }),
   tagTypes: ["Payment"],
@@ -24,25 +25,23 @@ export const paymentApi = createApi({
         url: "/payments",
         params: { page, size },
       }),
-      providesTags: (result) => 
-        result?.content ? 
-      [
-        ...result.content.map(({id}) => ({
-            type: 'Payment',
-            id
-        }))
-      ]: [{type: 'Payment', id: 'LIST'}]
+      providesTags: (result) =>
+        result?.content
+          ? [
+              ...result.content.map(({ id }) => ({
+                type: "Payment",
+                id,
+              })),
+            ]
+          : [{ type: "Payment", id: "LIST" }],
     }),
     refundPayment: build.mutation({
-        query: (id) => ({
-            url: `/payments/${id}/refund`,
-            method: 'POST'
-        })
-    })
+      query: (id) => ({
+        url: `/payments/${id}/refund`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
-export const {
-    useGetAllPaymentQuery,
-    useRefundPaymentMutation
-} = paymentApi
+export const { useGetAllPaymentQuery, useRefundPaymentMutation } = paymentApi;
