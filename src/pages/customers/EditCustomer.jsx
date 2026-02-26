@@ -21,11 +21,13 @@ import TableAction from "../../components/common/TableAction.jsx";
 import MultiSelect from "../../components/common/MultiSelect.jsx";
 import { useGetUserByIdQuery } from "../../store/user/userApi.js";
 import Loader from "../../components/common/Loader.jsx";
+import { useUpdateUserRoleMutation } from "../../store/user/userApi.js";
 
 const EditCustomer = () => {
   const { customerId } = useParams();
   const { data , isLoading} = useGetUserByIdQuery(customerId)
   const customer = Customers.find(customer => customer.id.toString() === customerId.toString());
+  const [updateUserRole] = useUpdateUserRoleMutation()
 
   const [fields, setFields] = useState({
   name: "",
@@ -71,8 +73,19 @@ useEffect(() => {
     });
   }
 }, [data]);
+const [selectedRole, setSelectedRole] = useState("role");
 
-
+const roleOptions = [
+{ value: "ROLE_ADMIN", label: "Admin" },
+{ value: "ROLE_USER", label: "User" },
+];
+  const handleSave = async () => {
+    try {
+      await updateUserRole({id: customerId,role: selectedRole}).unwrap()
+    } catch (error) {
+      console.log(error)
+    }
+  }
   const handleInputChange = (key, value) => {
     setFields({
       ...fields,
@@ -87,23 +100,22 @@ useEffect(() => {
     });
   };
 
-  const [status, setStatus] = useState([
-    {
-      value: "active",
-      label: "active",
-    },
-    {
-      value: "locked",
-      label: "locked",
-    },
-  ]);
+  // const [status, setStatus] = useState([
+  //   {
+  //     value: "active",
+  //     label: "active",
+  //   },
+  //   {
+  //     value: "locked",
+  //     label: "locked",
+  //   },
+  // ]);
 
-  const handleStatusSelect = (isSelect) => {
-    setFields({
-      ...fields,
-      status: isSelect.label,
-    });
-  };
+
+
+  const handleStatusSelect = (option) => {
+  setSelectedRole(option.value);
+};
 
   const handleCountrySelect = (isSelect) => {
     setFields({
@@ -132,6 +144,11 @@ useEffect(() => {
       navigate(`/catalog/product/manage/${itemID}`);
     }
   };
+  useEffect(() => {
+  if (data?.data?.role) {
+    setSelectedRole(data.data.role);
+  }
+}, [data]);
   if(isLoading) return <Loader />
   return (
     <section>
@@ -507,16 +524,17 @@ useEffect(() => {
                 label="save"
                 icon={<Icons.TbCircleCheck />}
                 className="success"
+                onClick={() => handleSave()}
               />
             </div>
             <div className="sidebar_item">
-              <h2 className="sub_heading">Status</h2>
+              <h2 className="sub_heading">Role</h2>
               <div className="column">
                 <Dropdown
                   placeholder="select stock status"
-                  selectedValue={fields.status}
+                  selectedValue={selectedRole}
                   onClick={handleStatusSelect}
-                  options={status}
+                  options={roleOptions}
                   // className="sm"
                 />
               </div>

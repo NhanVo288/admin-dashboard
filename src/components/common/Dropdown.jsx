@@ -41,7 +41,11 @@ const Dropdown = ({ className, placeholder, onClick, options, selectedValue, typ
       }
       <div className={`dropdown ${className ? className : ""}`}>
         <span onClick={handleDropdown} className="dropdown_placeholder">
-          {selectedValue || placeholder}
+          {
+  selectedValue
+    ? options.find(opt => opt.value === selectedValue)?.label
+    : placeholder
+}
           <Icons.TbChevronDown />
         </span>
         <ul className={`${dropdown ? "active" : ""} dropdown_options`}>

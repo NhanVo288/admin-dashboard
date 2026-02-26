@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import toast from "react-hot-toast";
+
 export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://26.100.40.164:8181/api",
     prepareHeaders: (header) => {
-      const token = localStorage.getItem("tokenAccess");
+      const token = localStorage.getItem("accessToken");
       const userId = localStorage.getItem("userId");
 
       if (token) {
@@ -17,8 +18,12 @@ export const productApi = createApi({
       return header;
     },
   }),
-  tagTypes: ["Product"],
+  tagTypes: ["Product", "Category"],
+
   endpoints: (builder) => ({
+
+    // ================= PRODUCT =================
+
     getProducts: builder.query({
       query: ({ page = 0, size = 10 }) => ({
         url: "/products",
@@ -35,6 +40,12 @@ export const productApi = createApi({
             ]
           : [{ type: "Product", id: "LIST" }],
     }),
+
+    getProductById: builder.query({
+      query: (id) => `/products/${id}`,
+      providesTags: (result, error, id) => [{ type: "Product", id }],
+    }),
+
     createProduct: builder.mutation({
       query: (body) => ({
         url: "/products",
@@ -50,11 +61,6 @@ export const productApi = createApi({
       invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
 
-    getProductById: builder.query({
-      query: (id) => `/products/${id}`,
-      providesTags: (result, error, id) => [{ type: "Product", id }],
-    }),
-
     updateProduct: builder.mutation({
       query: ({ id, body }) => ({
         url: `/products/${id}`,
@@ -68,10 +74,8 @@ export const productApi = createApi({
         } catch {}
       },
       invalidatesTags: (result, error, { id }) => [
-        {
-          type: "Product",
-          id,
-        },
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
       ],
     }),
 
@@ -95,14 +99,94 @@ export const productApi = createApi({
         params,
       }),
     }),
+
+    // ================= CATEGORY =================
+
+    getCategories: builder.query({
+      query: () => "/categories",
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({
+                type: "Category",
+                id,
+              })),
+              { type: "Category", id: "LIST" },
+            ]
+          : [{ type: "Category", id: "LIST" }],
+    }),
+
+    getCategoryById: builder.query({
+      query: (id) => `/categories/${id}`,
+      providesTags: (result, error, id) => [
+        { type: "Category", id },
+      ],
+    }),
+
+    createCategory: builder.mutation({
+      query: (body) => ({
+        url: "/categories",
+        method: "POST",
+        body,
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          toast.success("Tạo danh mục thành công");
+        } catch {}
+      },
+      invalidatesTags: [{ type: "Category", id: "LIST" }],
+    }),
+
+    updateCategory: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/categories/${id}`,
+        method: "PUT",
+        body,
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          toast.success("Cập nhật danh mục thành công");
+        } catch {}
+      },
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Category", id },
+        { type: "Category", id: "LIST" },
+      ],
+    }),
+
+    deleteCategory: builder.mutation({
+      query: (id) => ({
+        url: `/categories/${id}`,
+        method: "DELETE",
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          toast.success("Xóa danh mục thành công");
+        } catch {}
+      },
+      invalidatesTags: [{ type: "Category", id: "LIST" }],
+    }),
+
   }),
 });
 
 export const {
+  // Product
   useGetProductsQuery,
   useGetProductByIdQuery,
   useSearchProductsQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+
+  // Category
+  useGetCategoriesQuery,
+  useGetCategoryByIdQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+
 } = productApi;

@@ -4,9 +4,9 @@ export const orderApi = createApi({
   reducerPath: "orderApi",
   tagTypes: ["Order"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8181",
+    baseUrl: "http://26.100.40.164:8181/api",
     prepareHeaders: (header) => {
-      const token = localStorage.getItem("tokenAccess");
+      const token = localStorage.getItem("accessToken");
       const userId = localStorage.getItem("userId");
 
       if (token) {
@@ -30,7 +30,7 @@ export const orderApi = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Order"],
+      invalidatesTags: ["Order", "OrderHistory"],
     }),
 
     cancelOrder: builder.mutation({
@@ -43,7 +43,16 @@ export const orderApi = createApi({
 
     getAllOrders: builder.query({
       query: ({ page = 0, size = 10 }) => `/orders?page=${page}&size=${size}`,
-      providesTags: ["Order"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.content.map((order) => ({
+                type: "Order",
+                id: order.id,
+              })),
+              { type: "Order", id: "LIST" },
+            ]
+          : [{ type: "Order", id: "LIST" }],
     }),
 
     updateOrderStatus: builder.mutation({
@@ -52,11 +61,16 @@ export const orderApi = createApi({
         method: "PUT",
         body: { status, notes },
       }),
-      invalidatesTags: (r, e, { id }) => [{ type: "Order", id }],
+      invalidatesTags: (r, e, { id }) => [
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+        { type: "OrderHistory", id },
+      ],
     }),
 
     getOrderStatusHistory: builder.query({
       query: (id) => `/orders/${id}/status-history`,
+      providesTags: (r, e, id) => [{ type: "OrderHistory", id }],
     }),
   }),
 });

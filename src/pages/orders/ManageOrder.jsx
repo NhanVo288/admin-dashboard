@@ -11,28 +11,33 @@ import Dropdown from "../../components/common/Dropdown.jsx";
 import Pagination from "../../components/common/Pagination.jsx";
 import TableAction from "../../components/common/TableAction.jsx";
 import SelectOption from "../../components/common/SelectOption.jsx";
+import { useGetAllOrdersQuery } from "../../store/order/order.api.js";
+import { useDispatch, useSelector } from "react-redux";
+import { setPage, setSize } from "../../store/order/order.slice.js";
 
 const ManageOrders = () => {
+  const dispatch = useDispatch();
   const [bulkCheck, setBulkCheck] = useState(false);
   const [specificChecks, setSpecificChecks] = useState({});
+  const { page, size } = useSelector((state) => state.order);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedValue, setSelectedValue] = useState(5);
-    const navigate = useNavigate();
+  const { data } = useGetAllOrdersQuery({ page, size });
+  const totalPages = data?.totalPages || 0;
+  const navigate = useNavigate();
   const [tableRow, setTableRow] = useState([
     { value: 2, label: "2" },
     { value: 5, label: "5" },
     { value: 10, label: "10" },
   ]);
 
-  const orders = Orders;
+  const orders = data?.content ?? [];
 
-	const customer = orders.map(order => {
-	  const customerId = order.customer_id;
-	  const customer = Customers.find(customer => customer.id === customerId);
-	  return customer;
-	});
-
-
+  const customer = orders.map((order) => {
+    const customerId = order.customer_id;
+    const customer = Customers.find((customer) => customer.id === customerId);
+    return customer;
+  });
 
   const bulkAction = [
     { value: "delete", label: "Delete" },
@@ -45,7 +50,7 @@ const ManageOrders = () => {
   };
 
   const onPageChange = (newPage) => {
-    setCurrentPage(newPage);
+    dispatch(setPage(newPage - 1));
   };
 
   const handleBulkCheckbox = (isCheck) => {
@@ -69,11 +74,10 @@ const ManageOrders = () => {
   };
 
   const showTableRow = (selectedOption) => {
-    setSelectedValue(selectedOption.label);
-  };
+      dispatch(setSize((selectedOption.value)));
+    };
 
-
-  const actionItems = ["Delete","View", "Edit"];
+  const actionItems = ["Delete", "View", "Edit"];
 
   const handleActionItemClick = (item, itemID) => {
     var updateItem = item.toLowerCase();
@@ -83,7 +87,6 @@ const ManageOrders = () => {
       navigate(`/orders/manage/${itemID.toString()}`);
     }
   };
-
 
   return (
     <section className="orders">
@@ -122,21 +125,17 @@ const ManageOrders = () => {
                         />
                       </th>
                       <th className="td_id">id</th>
-                      <th>Customers</th>
-                      <th>Email</th>
-                      <th>phone</th>
+                      <th>Customers ID</th>
                       <th>amount</th>
-                      <th>tex amount</th>
-                      <th>shipping amount</th>
                       <th>payment method</th>
-                      <th>payment status</th>
+                      <th>status</th>
                       <th>actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.map((order, key) => {
                       return (
-                        <tr key={key}>
+                        <tr key={order.id}>
                           <td className="td_checkbox">
                             <CheckBox
                               onChange={(isCheck) =>
@@ -147,53 +146,55 @@ const ManageOrders = () => {
                           </td>
                           <td className="td_id">{order.id}</td>
                           <td>
-                          	<Link to={`/customers/manage/${customer[key].id}`}>{customer[key].name}</Link>
+                            <Link to={`/customers/manage/${order.userId}`}>
+                              {order.userId}
+                            </Link>
                           </td>
-                          <td>{customer[key].contact.email}</td>
-                          <td>{customer[key].contact.phone}</td>
-                          <td>{order.payment_details.amount}</td>
-                          <td>{order.payment_details.tax_amount}</td>
-                          <td>{order.payment_details.shipping_amount}</td>
-                          <td>{order.payment_details.payment_method}</td>
+
+                          {/* <td>{customer[key].contact.phone}</td> */}
+                          <td>{order.totalAmount}</td>
+                          {/* <td>{order.payment_details.tax_amount}</td>
+                          <td>{order.payment_details.shipping_amount}</td> */}
+                          <td>{order.paymentMethod}</td>
                           <td>
-                          	{order.status.toLowerCase() === "active" ||
-                           order.status.toLowerCase() === "completed" ||
-                           order.status.toLowerCase() === "approved" ||
-                           order.status.toLowerCase() === "delivered" ||
-                           order.status.toLowerCase() === "shipped" ||
-                           order.status.toLowerCase() === "new" ||
-                           order.status.toLowerCase() === "coming soon" ? (
-                             <Badge
-                               label={order.status}
-                               className="light-success"
-                             />
-                           ) : order.status.toLowerCase() === "inactive" ||
-                             order.status.toLowerCase() === "out of stock" ||
-                             order.status.toLowerCase() === "rejected" ||
-                             order.status.toLowerCase() === "locked" ||
-                             order.status.toLowerCase() === "discontinued" ? (
-                             <Badge
-                               label={order.status}
-                               className="light-danger"
-                             />
-                           ) : order.status.toLowerCase() === "on sale" ||
-                               order.status.toLowerCase() === "featured" ||
-                               order.status.toLowerCase() === "shipping" ||
-                               order.status.toLowerCase() === "processing" ||
-                               order.status.toLowerCase() === "pending" ? (
-                             <Badge
-                               label={order.status}
-                               className="light-warning"
-                             />
-                           ) : order.status.toLowerCase() === "archive" ||
-                               order.status.toLowerCase() === "pause" ? (
-                             <Badge
-                               label={order.status}
-                               className="light-secondary"
-                             />
-                           ) : (
-                             order.status
-                           )}
+                            {order.status.toLowerCase() === "active" ||
+                            order.status.toLowerCase() === "completed" ||
+                            order.status.toLowerCase() === "approved" ||
+                            order.status.toLowerCase() === "delivered" ||
+                            order.status.toLowerCase() === "shipped" ||
+                            order.status.toLowerCase() === "new" ||
+                            order.status.toLowerCase() === "coming soon" ? (
+                              <Badge
+                                label={order.status}
+                                className="light-success"
+                              />
+                            ) : order.status.toLowerCase() === "inactive" ||
+                              order.status.toLowerCase() === "out of stock" ||
+                              order.status.toLowerCase() === "failed" ||
+                              order.status.toLowerCase() === "locked" ||
+                              order.status.toLowerCase() === "discontinued" ? (
+                              <Badge
+                                label={order.status}
+                                className="light-danger"
+                              />
+                            ) : order.status.toLowerCase() === "on sale" ||
+                              order.status.toLowerCase() === "featured" ||
+                              order.status.toLowerCase() === "shipping" ||
+                              order.status.toLowerCase() === "processing" ||
+                              order.status.toLowerCase() === "pending" ? (
+                              <Badge
+                                label={order.status}
+                                className="light-warning"
+                              />
+                            ) : order.status.toLowerCase() === "archive" ||
+                              order.status.toLowerCase() === "pause" ? (
+                              <Badge
+                                label={order.status}
+                                className="light-secondary"
+                              />
+                            ) : (
+                              order.status
+                            )}
                           </td>
                           <td className="td_action">
                             <TableAction
@@ -214,13 +215,13 @@ const ManageOrders = () => {
               <Dropdown
                 className="top show_rows sm"
                 placeholder="please select"
-                selectedValue={selectedValue}
+                selectedValue={size}
                 onClick={showTableRow}
                 options={tableRow}
               />
               <Pagination
-                currentPage={currentPage}
-                totalPages={5}
+                currentPage={page + 1}
+                totalPages={totalPages}
                 onPageChange={onPageChange}
               />
             </div>

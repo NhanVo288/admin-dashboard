@@ -5,7 +5,7 @@ export const userApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "http://26.100.40.164:8181/api",
     prepareHeaders: (header) => {
-      const token = localStorage.getItem("tokenAccess");
+      const token = localStorage.getItem("accessToken");
       const userId = localStorage.getItem("userId");
 
       if (token) {
@@ -43,7 +43,9 @@ export const userApi = createApi({
       query: ({ id, role }) => ({
         url: `/users/${id}/role`,
         method: "PUT",
-        body: { role },
+        body: {
+      role: role
+    }
       }),
       invalidatesTags: (result, error, { id }) => [
         { type: "User", id },
