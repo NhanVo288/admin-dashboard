@@ -21,7 +21,6 @@ export const productApi = createApi({
   tagTypes: ["Product", "Category"],
 
   endpoints: (builder) => ({
-
     // ================= PRODUCT =================
 
     getProducts: builder.query({
@@ -62,10 +61,10 @@ export const productApi = createApi({
     }),
 
     updateProduct: builder.mutation({
-      query: ({ id, body }) => ({
+      query: ({ id, ...data }) => ({
         url: `/products/${id}`,
         method: "PUT",
-        body,
+        body: data,
       }),
       async onQueryStarted(_, { queryFulfilled }) {
         try {
@@ -118,9 +117,7 @@ export const productApi = createApi({
 
     getCategoryById: builder.query({
       query: (id) => `/categories/${id}`,
-      providesTags: (result, error, id) => [
-        { type: "Category", id },
-      ],
+      providesTags: (result, error, id) => [{ type: "Category", id }],
     }),
 
     createCategory: builder.mutation({
@@ -169,7 +166,6 @@ export const productApi = createApi({
       },
       invalidatesTags: [{ type: "Category", id: "LIST" }],
     }),
-
   }),
 });
 
@@ -188,5 +184,4 @@ export const {
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
-
 } = productApi;
