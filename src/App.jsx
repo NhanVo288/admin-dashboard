@@ -27,7 +27,6 @@ const App = () => {
   }, [dispatch]);
 
   if (isCheckingAuth) return null;
-
   
   if (!authUser && !isAdmin) {
     return (

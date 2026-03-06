@@ -14,11 +14,12 @@ import Thumbnail from "../../components/common/Thumbnail.jsx";
 import Pagination from "../../components/common/Pagination.jsx";
 import TableAction from "../../components/common/TableAction.jsx";
 import MultiSelect from "../../components/common/MultiSelect.jsx";
-
+import { useGetCategoriesQuery } from "../../store/products/productApi.js";
 const ManageCategories = () => {
   const categories = Categories;
   const navigate = useNavigate();
   const [bulkCheck, setBulkCheck] = useState(false);
+  const { data } = useGetCategoriesQuery()
   const [specificChecks, setSpecificChecks] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedValue, setSelectedValue] = useState(5);

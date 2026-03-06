@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import * as Icons from "react-icons/tb";
 import Input from '../common/Input.jsx';
 import Profile from '../common/Profile.jsx';
-import ProfileImg from '../../images/users/user_3.webp';
+import ProfileImg from '../../images/users/hacker.png';
 import { useSelector } from "react-redux";
 import { selectAuthUser } from "../../store/auth/auth.selector.js";
 const Navbar = () => {
