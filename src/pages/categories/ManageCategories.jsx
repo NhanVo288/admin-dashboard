@@ -14,12 +14,17 @@ import Thumbnail from "../../components/common/Thumbnail.jsx";
 import Pagination from "../../components/common/Pagination.jsx";
 import TableAction from "../../components/common/TableAction.jsx";
 import MultiSelect from "../../components/common/MultiSelect.jsx";
-import { useGetCategoriesQuery } from "../../store/products/productApi.js";
+import {
+  useGetCategoriesQuery,
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation,
+} from "../../store/products/productApi.js";
 const ManageCategories = () => {
   const categories = Categories;
   const navigate = useNavigate();
   const [bulkCheck, setBulkCheck] = useState(false);
-  const { data } = useGetCategoriesQuery()
+  const [createCategory, deleteCategory] = useCreateCategoryMutation();
+  const { data = [] } = useGetCategoriesQuery();
   const [specificChecks, setSpecificChecks] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedValue, setSelectedValue] = useState(5);
@@ -32,9 +37,9 @@ const ManageCategories = () => {
   const [fields, setCategories] = useState({
     name: "",
     description: "",
-    parentCategoryValue: "",
-    status: "",
-    isFeatured: false
+    parentId: 0,
+    // status: "",
+    // isFeatured: false
   });
 
   const handleInputChange = (key, value) => {
@@ -43,38 +48,45 @@ const ManageCategories = () => {
       [key]: value,
     });
   };
-
+  const handleSave = async (field) => {
+    try {
+      await createCategory(field).unwrap;
+    } catch (error) {
+      console.error("Error", error);
+    }
+  };
   const statusOptions = [
-    { "value": "active", "label": "active" },
-    { "value": "completed", "label": "completed" },
-    { "value": "new", "label": "new" },
-    { "value": "coming soon", "label": "coming soon" },
-    { "value": "inactive", "label": "inactive" },
-    { "value": "out of stock", "label": "out of stock" },
-    { "value": "discontinued", "label": "discontinued" },
-    { "value": "on sale", "label": "on sale" },
-    { "value": "featured", "label": "featured" },
-    { "value": "pending", "label": "pending" },
-    { "value": "archive", "label": "archive" },
-    { "value": "pause", "label": "pause" }
-  ]
+    { value: "active", label: "active" },
+    { value: "completed", label: "completed" },
+    { value: "new", label: "new" },
+    { value: "coming soon", label: "coming soon" },
+    { value: "inactive", label: "inactive" },
+    { value: "out of stock", label: "out of stock" },
+    { value: "discontinued", label: "discontinued" },
+    { value: "on sale", label: "on sale" },
+    { value: "featured", label: "featured" },
+    { value: "pending", label: "pending" },
+    { value: "archive", label: "archive" },
+    { value: "pause", label: "pause" },
+  ];
 
-  const parentCategories = Categories.map(category=>({
-    value: category.name,
-    label: category.name
-  }))
+  const parentCategories =
+    data?.map((category) => ({
+      value: category.id,
+      label: category.name,
+    })) || [];
 
   const selectParentCategory = (selectedOption) => {
     setCategories({
       ...fields,
-      parentCategoryValue: selectedOption.label,
+      parentId: selectedOption.value,
     });
   };
 
   const selectSelect = (selectedOption) => {
     setCategories({
       ...fields,
-      status: selectedOption.label,
+      status: selectedOption.value,
     });
   };
 
@@ -123,15 +135,14 @@ const ManageCategories = () => {
     });
   };
 
-    const actionItems = ["Delete", "edit"];
+  const actionItems = ["Delete", "edit"];
 
-  const handleActionItemClick = (item,itemID) => {
-    var updateItem = item.toLowerCase()
+  const handleActionItemClick = (item, itemID) => {
+    var updateItem = item.toLowerCase();
     if (updateItem === "delete") {
-      alert(`#${itemID} item delete`)
-    }
-    else if(updateItem === "edit"){
-      navigate(`/catalog/categories/manage/${itemID}`)
+      alert(`#${itemID} item delete`);
+    } else if (updateItem === "edit") {
+      navigate(`/catalog/categories/manage/${itemID}`);
     }
   };
 
@@ -143,7 +154,7 @@ const ManageCategories = () => {
             <div className="sidebar_item">
               <h2 className="sub_heading">add category</h2>
               <div className="column">
-                <Thumbnail/>
+                {/* <Thumbnail /> */}
               </div>
               <div className="column">
                 <Input
@@ -163,24 +174,17 @@ const ManageCategories = () => {
                   onChange={(value) => handleInputChange("description", value)}
                 />
               </div>
-              <Divider/>
+              <Divider />
               <div className="column">
-                <MultiSelect
-                  label="Select Parent Category"
-                  placeholder="Select Parent Category"
-                  onClick={selectParentCategory}
-                  isMulti={false}
-                  options={parentCategories}
-                  isSelected={fields.parentCategoryValue}
-                />
+              
               </div>
               <div className="column">
                 <Dropdown
-                  label="Status"
-                  placeholder="Select Status"
-                  onClick={selectSelect}
-                  options={statusOptions}
-                  selectedValue={fields.status}
+                  label="Parent Category"
+                  placeholder="Select parent"
+                  onClick={selectParentCategory}
+                  options={parentCategories}
+                  selectedValue={fields.parentId}
                 />
               </div>
               <div className="column">
@@ -190,14 +194,9 @@ const ManageCategories = () => {
                   onChange={handleFeaturedChange}
                 />
               </div>
-              <Divider/>
-              <Button
-                label="Discard"
-                className="right outline"
-              />
-              <Button
-                label="save"
-              />
+              <Divider />
+              <Button label="Discard" className="right outline" />
+              <Button onClick={() => handleSave(fields)} label="save" />
             </div>
           </div>
           <div className="content transparent">
@@ -231,73 +230,35 @@ const ManageCategories = () => {
                         />
                       </th>
                       <th className="td_id">id</th>
-                      <th className="td_image">image</th>
+                      <th className="td_image">Description</th>
                       <th>name</th>
-                      <th className="td_order">order</th>
-                      <th className="td_status">status</th>
-                      <th>created at</th>
                       <th className="td_action">actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {categories.map((category, key) => {
+                    {data?.map((category, key) => {
                       return (
                         <tr key={key}>
                           <td className="td_checkbox">
                             <CheckBox
                               onChange={(isCheck) =>
-                                handleCheckCategory(isCheck, category.id)
+                                handleCheckCategory(isCheck, category?.id)
                               }
-                              isChecked={specificChecks[category.id] || false}
+                              isChecked={specificChecks[category?.id] || false}
                             />
                           </td>
-                          <td className="td_id">{category.id}</td>
+                          <td className="td_id">{category?.id}</td>
                           <td className="td_image">
-                            <img src={category.image} alt={category.name} />
+                            <p>{category?.description}</p>
                           </td>
                           <td>
-                            <Link to={category.id}>{category.name}</Link>
+                            <Link to={category?.id}>{category?.name}</Link>
                           </td>
-                          <td className="td_order">{category.order}</td>
-                          <td className="td_status">
-                            {category.status.toLowerCase() === "active" ||
-                             category.status.toLowerCase() === "completed" ||
-                             category.status.toLowerCase() === "new" ||
-                             category.status.toLowerCase() === "coming soon" ? (
-                               <Badge
-                                 label={category.status}
-                                 className="light-success"
-                               />
-                             ) : category.status.toLowerCase() === "inactive" ||
-                               category.status.toLowerCase() === "out of stock" ||
-                               category.status.toLowerCase() === "discontinued" ? (
-                               <Badge
-                                 label={category.status}
-                                 className="light-danger"
-                               />
-                             ) : category.status.toLowerCase() === "on sale" ||
-                                 category.status.toLowerCase() === "featured" ||
-                                 category.status.toLowerCase() === "pending" ? (
-                               <Badge
-                                 label={category.status}
-                                 className="light-warning"
-                               />
-                             ) : category.status.toLowerCase() === "archive" ||
-                                 category.status.toLowerCase() === "pause" ? (
-                               <Badge
-                                 label={category.status}
-                                 className="light-secondary"
-                               />
-                             ) : (
-                               ""
-                             )}
-                          </td>
-                          <td>{category.start_date}</td>
                           <td className="td_action">
                             <TableAction
                               actionItems={actionItems}
                               onActionItemClick={(item) =>
-                                handleActionItemClick(item, category.id)
+                                handleActionItemClick(item, category?.id)
                               }
                             />
                           </td>
@@ -309,18 +270,18 @@ const ManageCategories = () => {
               </div>
             </div>
             <div className="content_footer">
-              <Dropdown
+              {/* <Dropdown
                 className="top show_rows sm"
                 placeholder="please select"
                 selectedValue={selectedValue}
                 onClick={showTableRow}
                 options={tableRow}
-              />
-              <Pagination
+              /> */}
+              {/* <Pagination
                 currentPage={currentPage}
                 totalPages={5}
                 onPageChange={onPageChange}
-              />
+              /> */}
             </div>
           </div>
         </div>

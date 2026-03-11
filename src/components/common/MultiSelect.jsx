@@ -170,7 +170,7 @@ const MultiSelect = ({
         ) : null}
       </div>
       <ul className={`select_dropdown ${bool ? "active" : ""}`}>
-        {filteredOptions.map((option, key) => {
+        {filteredOptions?.map((option, key) => {
           const isOptionSelected = selected.includes(option.label);
           return (
             <li

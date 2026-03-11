@@ -7,13 +7,13 @@ import Dropdown from "../../components/common/Dropdown.jsx";
 import Textarea from "../../components/common/Textarea.jsx";
 import FileUpload from "../../components/common/FileUpload.jsx";
 import MultiSelect from "../../components/common/MultiSelect.jsx";
-import { useCreateProductMutation } from "../../store/products/productApi.js";
+import { useCreateProductMutation, useGetCategoriesQuery } from "../../store/products/productApi.js";
 import { useNavigate } from "react-router-dom";
 
 const AddProduct = () => {
   const navigate = useNavigate();
   const [createProduct, { isLoading }] = useCreateProductMutation();
-
+  const { data } = useGetCategoriesQuery()
  
   const [product, setProduct] = useState({
     name: "",
@@ -68,7 +68,7 @@ const AddProduct = () => {
 
   const isDisabled = !product.name || !product.price || !product.categoryId || product.images.length === 0;
 
-  const categoryOptions = Categories.map((c) => ({
+  const categoryOptions = data?.map((c) => ({
     label: c.name,
     value: c.id,
   }));
@@ -205,7 +205,7 @@ const AddProduct = () => {
               <MultiSelect
                 placeholder="Select Category"
                 options={categoryOptions}
-                value={categoryOptions.find(c => c.value === product.categoryId)}
+                value={product.categoryId}
                 onChange={(id) => handleInputChange("categoryId", id)}
               />
             </div>

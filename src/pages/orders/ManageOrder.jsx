@@ -144,7 +144,11 @@ const ManageOrders = () => {
                               isChecked={specificChecks[order.id] || false}
                             />
                           </td>
-                          <td className="td_id">{order.id}</td>
+                          <td>
+                            <Link to={`/orders/manage/${order.id}`}>
+                              {order.id}
+                            </Link>
+                          </td>
                           <td>
                             <Link to={`/customers/manage/${order.userId}`}>
                               {order.userId}
